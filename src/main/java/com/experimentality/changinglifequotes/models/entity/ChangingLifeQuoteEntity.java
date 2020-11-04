@@ -15,7 +15,7 @@ public class ChangingLifeQuoteEntity implements Serializable {
 	private static final long serialVersionUID = 6075316203091762851L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "CLQ_SEQ_QUOTE")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String quote;
 	private String imageUrl;

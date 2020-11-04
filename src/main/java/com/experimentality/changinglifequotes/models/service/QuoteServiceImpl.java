@@ -1,10 +1,20 @@
 package com.experimentality.changinglifequotes.models.service;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.experimentality.changinglifequotes.models.dao.IQuoteDao;
 import com.experimentality.changinglifequotes.models.entity.ChangingLifeQuoteEntity;
@@ -14,6 +24,9 @@ public class QuoteServiceImpl implements IQuoteService {
 	
 	@Autowired
 	private IQuoteDao quoteDao;
+	
+	@Autowired
+	private RestTemplate clientRest;
 	
 	private final Logger log = LoggerFactory.getLogger(QuoteServiceImpl.class);
 
@@ -72,12 +85,32 @@ public class QuoteServiceImpl implements IQuoteService {
 		return quote;
 	}
 	
-	private String getExternalQuoute() {
-		return "Quote";
+	private String getExternalQuoute() throws Exception {
+
+		//String result = clientRest.getForObject("https://market.mashape.com/andruxnet/random-famous-quotes", String.class);
+		
+		return "dog barking";
 	}
 	
-	private String getImageUrlFromQuote(String quoteMsg) {
-		return "Image";
+	private String getImageUrlFromQuote(String quoteMsg) throws Exception {
+
+		final String uri = "https://api.deepai.org/api/text2img";
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.set("api-key", "50011410-4806-438c-8c2f-1b4c422aa07f");
+
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("text", quoteMsg);
+
+		ResponseEntity<String> response = clientRest.exchange(uri, HttpMethod.GET, entity, String.class, params);
+
+		// Use the response.getBody()
+
+		return response.getBody();
+
 	}
 
 }
