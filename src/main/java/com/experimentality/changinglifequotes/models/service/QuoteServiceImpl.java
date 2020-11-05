@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.experimentality.changinglifequotes.models.dao.IQuoteDao;
-import com.experimentality.changinglifequotes.models.dto.QuoteResponseDto;
 import com.experimentality.changinglifequotes.models.entity.ChangingLifeQuoteEntity;
 
 @Service
@@ -97,19 +97,13 @@ public class QuoteServiceImpl implements IQuoteService {
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 
 		ResponseEntity<String> response = clientRest.exchange(uri, HttpMethod.GET, entity, String.class);
-		
-//        String jsonStr = "{\"name\":\"SK\",\"arr\":{\"a\":\"1\",\"b\":\"2\"}}";
-//        JSONObject jsonObj = new JSONObject(jsonStr);
-//		String name = jsonObj.getString("name");
-//		System.out.println(name);
-//
-//		String first = jsonObj.getJSONObject("arr").getString("a");
-//		System.out.println(first);
-		
-		JSONObject jsonObj = new JSONObject(response.getBody());
+				
+		JSONArray quotesArray  = new JSONObject(response.getBody()).getJSONObject("contents").getJSONArray("quotes");
+		JSONObject quote = quotesArray.getJSONObject(0);
+		String quoteMsg = quote.getString("quote");
 		
 		
-		return response.getBody();
+		return quoteMsg;
 	}
 	
 	private String getImageUrlFromQuote(String quoteMsg) throws Exception {
@@ -125,9 +119,12 @@ public class QuoteServiceImpl implements IQuoteService {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("text", quoteMsg);
 
-		ResponseEntity<QuoteResponseDto> response = clientRest.exchange(uri, HttpMethod.GET, entity, QuoteResponseDto.class, params);
+		ResponseEntity<String> response = clientRest.exchange(uri, HttpMethod.GET, entity, String.class, params);
 		
-		return response.getBody().getOutput_url();
+		JSONObject jsonObj = new JSONObject(response.getBody());
+		String imgUrl = jsonObj.getString("output_url");
+		
+		return imgUrl;
 		
 	}
 
