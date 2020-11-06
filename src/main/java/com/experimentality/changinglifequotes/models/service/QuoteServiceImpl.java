@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -29,6 +30,9 @@ public class QuoteServiceImpl implements IQuoteService {
 	
 	@Autowired
 	private RestTemplate clientRest;
+	
+	@Value("${apikey.textToImage}")
+	private String apiKeyTextToImg;
 	
 	private final Logger log = LoggerFactory.getLogger(QuoteServiceImpl.class);
 
@@ -81,6 +85,8 @@ public class QuoteServiceImpl implements IQuoteService {
 			saveQuote(quote);
 			
 		} catch (Exception e) {
+			quote.setImageUrl("");
+			quote.setQuote(e.getMessage());
 			log.error("There has been an error deleting the quote", e);
 		}
 		
@@ -112,8 +118,8 @@ public class QuoteServiceImpl implements IQuoteService {
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		headers.set("api-key", "50011410-4806-438c-8c2f-1b4c422aa07f");
-
+		headers.set("api-key", apiKeyTextToImg);
+		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 
 		Map<String, String> params = new HashMap<String, String>();
